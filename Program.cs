@@ -1,5 +1,8 @@
 using LearningAssistant.Components;
 using LearningAssistant.Data;
+using LearningAssistant.Middleware;
+using LearningAssistant.Repositories;
+using LearningAssistant.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +13,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<ILearningMaterialRepository, LearningMaterialRepository>();
+builder.Services.AddScoped<ILearningMaterialService, LearningMaterialService>();
 
 var app = builder.Build();
 
@@ -20,6 +25,7 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseAntiforgery();
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapStaticAssets();
 app.MapControllers();
